@@ -27,15 +27,15 @@ describe("Crowdfunding", function () {
 
   it("Should be possible transfer funds to any address", async function () {
     await donations.connect(account0).donate({value: my_value})
-    const tx2 = await donations.connect(account0).transferOut(account1.address, 1)
+    const tx2 = await donations.connect(account0).transferOut(account1.address, 20)
 
-    expect(() => tx2).to.changeBalances([donations, account1], [-my_value, my_value])
+    await expect(() => tx2).to.changeBalances([donations, account1], [-my_value, my_value])
   })
 
   it("Should be possible transfer funds for owner only", async function () {
     await donations.connect(account0).donate({value: my_value})
 
-    expect(donations.connect(account0).transferOut(account0.address, 1)).revertedWith('Nobody but the owner can do it');
+    expect(donations.connect(account0).transferOut(account0.address, 20)).revertedWith('Nobody but the owner can do it');
   })
 
   it("Should be possible view all donators", async function () {
@@ -46,11 +46,10 @@ describe("Crowdfunding", function () {
   })
 
   it("Should be possible view donate per address", async function () {
-    await donations.connect(acc0).donate({value: my_value})
-    await donations.connect(acc0).donate({value: my_value})
-    await donations.connect(acc1).donate({value: my_value})
-    value = await donations.donate_per_addess(acc1.address)
+    await donations.connect(account0).donate({value: my_value})
+    await donations.connect(account1).donate({value: my_value})
+    value = await donations.getDonationsOfAddess(account1.address)
 
-    expect(value).to.equal(my_value * 2)
+    expect(my_value).to.equal(value)
   })
 });
